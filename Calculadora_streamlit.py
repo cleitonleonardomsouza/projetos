@@ -1,89 +1,100 @@
 import streamlit as st
 import math
 
-# Função para realizar a operação
+# Função para realizar as operações
 def calcular(num1, num2, operador):
-    if operador == '+':
+    if operador == 'Soma':
         return round(num1 + num2, 2)
-    elif operador == '-':
+    elif operador == 'Subtração':
         return round(num1 - num2, 2)
-    elif operador == '/':
+    elif operador == 'Multiplicação':
+        return round(num1 * num2, 2)
+    elif operador == 'Divisão':
         if num2 == 0:
             return "Erro: Divisão por zero!"
         return round(num1 / num2, 2)
-    elif operador == '*':
-        return round(num1 * num2, 2)
-    elif operador == 'potência':
-        return round(num1 ** num2, 2)
-    elif operador == 'raiz quadrada':
-        if num1 < 0:
-            return "Erro: Raiz de número negativo!"
-        return round(math.sqrt(num1), 2)
-    elif operador == 'seno':
+    elif operador == 'Seno':
         return round(math.sin(math.radians(num1)), 2)
-    elif operador == 'cosseno':
+    elif operador == 'Cosseno':
         return round(math.cos(math.radians(num1)), 2)
-    elif operador == 'tangente':
+    elif operador == 'Tangente':
         return round(math.tan(math.radians(num1)), 2)
-    elif operador == 'logaritmo':
-        if num1 <= 0:
-            return "Erro: Logaritmo de número não positivo!"
-        return round(math.log(num1), 2)
-    else:
-        return "Operador inválido!"
+    elif operador == 'Exponencial':
+        return round(math.exp(num1), 2)
+    elif operador == 'Logaritmo':
+        return round(math.log(num1), 2) if num1 > 0 else "Erro: Logaritmo não definido para zero ou números negativos."
+    elif operador == 'Raiz Quadrada':
+        return round(math.sqrt(num1), 2) if num1 >= 0 else "Erro: Raiz quadrada de número negativo."
 
 # Interface do Streamlit
 st.title("Calculadora Científica")
-st.header("Realize operações matemáticas e científicas facilmente")
+st.header("Realize operações matemáticas e científicas")
 
-# Opções de operação
-operacao = st.selectbox("Escolha uma operação:", [
-    '+', '-', '*', '/', 'potência', 'raiz quadrada',
-    'seno', 'cosseno', 'tangente', 'logaritmo'
-])
+# Entrada da forma básica
+num1 = st.text_input("Digite um número:")
 
-numero_1 = st.text_input("Digite um número:")
-numero_2 = st.text_input("Digite outro número (se necessário):")
+# Verifica se o usuário inseriu um valor numérico
+if num1 != "":
+    num1 = float(num1)
+else:
+    num1 = None
 
-# Lista para armazenar histórico de cálculos
-if 'historico' not in st.session_state:
-    st.session_state.historico = []
+# Adiciona botões para operações
+if st.button("Soma"):
+    if num1 is not None:
+        num2 = st.text_input("Digite outro número:")
+        if num2:
+            resultado = calcular(num1, float(num2), 'Soma')
+            st.success(f'Resultado: {num1} + {num2} = {resultado}')
 
-# Botão para calcular
-if st.button("Calcular"):
-    numeros_validos = True
-    
-    try:
-        num_1_float = float(numero_1)
-        if operacao in ['+', '-', '*', '/', 'potência', 'logaritmo']:
-            num_2_float = float(numero_2)
-        else:
-            num_2_float = None  # Não necessário para funções como raiz, seno, etc.
-    except ValueError:
-        st.error('Um ou ambos os números são inválidos.')
-        numeros_validos = False
+if st.button("Subtração"):
+    if num1 is not None:
+        num2 = st.text_input("Digite outro número:")
+        if num2:
+            resultado = calcular(num1, float(num2), 'Subtração')
+            st.success(f'Resultado: {num1} - {num2} = {resultado}')
 
-    if numeros_validos:
-        resultado = calcular(num_1_float, num_2_float, operacao)
-        
-        # Armazenar resultado no histórico
-        if isinstance(resultado, float) or isinstance(resultado, str) and "Erro" not in resultado:
-            st.success(f'Resultado: {num_1_float} {operacao} {num_2_float if num_2_float is not None else ""} = {resultado}')
-            st.session_state.historico.append(f'{num_1_float} {operacao} {num_2_float if num_2_float is not None else ""} = {resultado}')
-        else:
-            st.error(resultado)
+if st.button("Multiplicação"):
+    if num1 is not None:
+        num2 = st.text_input("Digite outro número:")
+        if num2:
+            resultado = calcular(num1, float(num2), 'Multiplicação')
+            st.success(f'Resultado: {num1} * {num2} = {resultado}')
 
-# Mostrar histórico
-if st.session_state.historico:
-    st.subheader("Histórico de Cálculos")
-    for item in st.session_state.historico:
-        st.write(item)
+if st.button("Divisão"):
+    if num1 is not None:
+        num2 = st.text_input("Digite outro número:")
+        if num2:
+            resultado = calcular(num1, float(num2), 'Divisão')
+            st.success(f'Resultado: {num1} ÷ {num2} = {resultado}')
 
-# Botão para limpar entradas
-if st.button("Limpar"):
-    st.session_state.historico = []
-    st.experimental_rerun()  # Redefine o estado da página
+# Adiciona botões para funções científicas
+if st.button("Seno"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Seno')
+        st.success(f'Seno de {num1}° = {resultado}')
 
-# Opção para sair
-if st.button("Sair"):
-    st.stop()  # Para encerrar o aplicativo
+if st.button("Cosseno"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Cosseno')
+        st.success(f'Cosseno de {num1}° = {resultado}')
+
+if st.button("Tangente"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Tangente')
+        st.success(f'Tangente de {num1}° = {resultado}')
+
+if st.button("Exponencial"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Exponencial')
+        st.success(f'e^{num1} = {resultado}')
+
+if st.button("Logaritmo"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Logaritmo')
+        st.success(f'ln({num1}) = {resultado}')
+
+if st.button("Raiz Quadrada"):
+    if num1 is not None:
+        resultado = calcular(num1, 0, 'Raiz Quadrada')
+        st.success(f'Raiz quadrada de {num1} = {resultado}')
