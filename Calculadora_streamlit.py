@@ -1,100 +1,101 @@
 import streamlit as st
 import math
 
-# Função para realizar as operações
+# Função para realizar a operação
 def calcular(num1, num2, operador):
-    if operador == 'Soma':
+    if operador == '+':
         return round(num1 + num2, 2)
-    elif operador == 'Subtração':
+    elif operador == '-':
         return round(num1 - num2, 2)
-    elif operador == 'Multiplicação':
-        return round(num1 * num2, 2)
-    elif operador == 'Divisão':
+    elif operador == '/':
         if num2 == 0:
             return "Erro: Divisão por zero!"
         return round(num1 / num2, 2)
-    elif operador == 'Seno':
+    elif operador == '*':
+        return round(num1 * num2, 2)
+    elif operador == 'sin':
         return round(math.sin(math.radians(num1)), 2)
-    elif operador == 'Cosseno':
+    elif operador == 'cos':
         return round(math.cos(math.radians(num1)), 2)
-    elif operador == 'Tangente':
+    elif operador == 'tan':
         return round(math.tan(math.radians(num1)), 2)
-    elif operador == 'Exponencial':
+    elif operador == 'exp':
         return round(math.exp(num1), 2)
-    elif operador == 'Logaritmo':
-        return round(math.log(num1), 2) if num1 > 0 else "Erro: Logaritmo não definido para zero ou números negativos."
-    elif operador == 'Raiz Quadrada':
-        return round(math.sqrt(num1), 2) if num1 >= 0 else "Erro: Raiz quadrada de número negativo."
+    else:
+        return "Operador inválido!"
 
 # Interface do Streamlit
-st.title("Calculadora Científica")
-st.header("Realize operações matemáticas e científicas")
+st.title("Calculadora Científica Simples")
+st.header("Realize operações matemáticas facilmente")
 
-# Entrada da forma básica
-num1 = st.text_input("Digite um número:")
+# Entrada do usuário
+numero_1 = st.text_input("Digite um número:")
+numero_2 = st.text_input("Digite outro número (não usado em funções científicas):")
+operador = None
 
-# Verifica se o usuário inseriu um valor numérico
-if num1 != "":
-    num1 = float(num1)
-else:
-    num1 = None
+# Botões para operações
+col1, col2, col3, col4, col5 = st.columns(5)
 
-# Adiciona botões para operações
-if st.button("Soma"):
-    if num1 is not None:
-        num2 = st.text_input("Digite outro número:")
-        if num2:
-            resultado = calcular(num1, float(num2), 'Soma')
-            st.success(f'Resultado: {num1} + {num2} = {resultado}')
+with col1:
+    if st.button("+"):
+        operador = '+'
+with col2:
+    if st.button("-"):
+        operador = '-'
+with col3:
+    if st.button("*"):
+        operador = '*'
+with col4:
+    if st.button("/"):
+        operador = '/'
+with col5:
+    if st.button("sin"):
+        operador = 'sin'
+with col1:
+    if st.button("cos"):
+        operador = 'cos'
+with col2:
+    if st.button("tan"):
+        operador = 'tan'
+with col3:
+    if st.button("exp"):
+        operador = 'exp'
 
-if st.button("Subtração"):
-    if num1 is not None:
-        num2 = st.text_input("Digite outro número:")
-        if num2:
-            resultado = calcular(num1, float(num2), 'Subtração')
-            st.success(f'Resultado: {num1} - {num2} = {resultado}')
+# Lista para armazenar histórico de cálculos
+if 'historico' not in st.session_state:
+    st.session_state.historico = []
 
-if st.button("Multiplicação"):
-    if num1 is not None:
-        num2 = st.text_input("Digite outro número:")
-        if num2:
-            resultado = calcular(num1, float(num2), 'Multiplicação')
-            st.success(f'Resultado: {num1} * {num2} = {resultado}')
+# Botão para calcular
+if operador and st.button("Calcular"):
+    numeros_validos = True
+    
+    try:
+        num_1_float = float(numero_1)
+        if operador in ['+', '-', '*', '/']:
+            num_2_float = float(numero_2)  # O segundo número é necessário apenas para algumas operações
+    except ValueError:
+        st.error('Um ou ambos os números são inválidos.')
+        numeros_validos = False
 
-if st.button("Divisão"):
-    if num1 is not None:
-        num2 = st.text_input("Digite outro número:")
-        if num2:
-            resultado = calcular(num1, float(num2), 'Divisão')
-            st.success(f'Resultado: {num1} ÷ {num2} = {resultado}')
+    if numeros_validos:
+        resultado = calcular(num_1_float, num_2_float if operador in ['+', '-', '*', '/'] else None, operador)
+        
+        # Armazenar resultado no histórico
+        if isinstance(resultado, float) or isinstance(resultado, str):
+            st.success(f'Resultado: {num_1_float} {operador} {num_2_float if operador in ["+", "-", "*", "/"] else ""} = {resultado}')
+            st.session_state.historico.append(f'{num_1_float} {operador} {num_2_float if operador in ["+", "-", "*", "/"] else ""} = {resultado}')
 
-# Adiciona botões para funções científicas
-if st.button("Seno"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Seno')
-        st.success(f'Seno de {num1}° = {resultado}')
+# Mostrar histórico
+if st.session_state.historico:
+    st.subheader("Histórico de Cálculos")
+    for item in st.session_state.historico:
+        st.write(item)
 
-if st.button("Cosseno"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Cosseno')
-        st.success(f'Cosseno de {num1}° = {resultado}')
+# Botão para limpar entradas
+if st.button("Limpar"):
+    st.session_state.historico = []
+    st.experimental_rerun()  # Redefine o estado da página
 
-if st.button("Tangente"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Tangente')
-        st.success(f'Tangente de {num1}° = {resultado}')
-
-if st.button("Exponencial"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Exponencial')
-        st.success(f'e^{num1} = {resultado}')
-
-if st.button("Logaritmo"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Logaritmo')
-        st.success(f'ln({num1}) = {resultado}')
-
-if st.button("Raiz Quadrada"):
-    if num1 is not None:
-        resultado = calcular(num1, 0, 'Raiz Quadrada')
-        st.success(f'Raiz quadrada de {num1} = {resultado}')
+# Opção para sair
+if st.button("Sair"):
+    st.stop()  # Para encerrar o aplicativo
